@@ -15,9 +15,7 @@ void child_a(int fd[], char buffer[])
   close(fd[READ]);
   // Redirect STDOUT to write to the pipe.
   dup2(fd[WRITE], STDOUT_FILENO);
-
-  execlp("ls", "-F", "-1", NULL);
-  
+  execlp("ls", "ls", "-F", "-1", NULL);
   // Close the dangling pipe write descriptor.
   close(fd[WRITE]);
   exit(EXIT_SUCCESS);
@@ -32,32 +30,13 @@ void child_b(int fd[], char buffer[]) {
     close(fd[WRITE]);
     // Redirect STDIN to read from the pipe.
     dup2(fd[READ], STDIN_FILENO);
-    int N = 80;
-    int n;
-    while ((n = read(fd[0], buffer, sizeof(buffer))))
-    {
-      // Check for error.
-      if (n == -1)
-      {
-        perror("Reading from file");
-        exit(EXIT_FAILURE);
-      }
-
-
-      // NULL-terminate.
-      buffer[n] = '\0';
-      execlp("nl", "-", NULL);
-      //printf("%s", buffer);
-    }
+      execlp("nl", "nl", "-", NULL);
     // Close the dangling pipe read descriptor.
     close(fd[READ]);
-
   printf(" CHILD B <%ld> Goodbye!\n",
          (long) getpid());
   exit(EXIT_SUCCESS);
 }
-
-
 
 
 void parent(int pidIDs[]) {
@@ -65,22 +44,13 @@ void parent(int pidIDs[]) {
          (long) getpid(), (long) getpid(), (long) pidIDs[0]);
   printf("PARENT <%ld> My PID is <%ld> and I spawned a child with PID <%ld>.\n",
          (long) getpid(), (long) getpid(), (long) pidIDs[1]);
+  //wait(NULL);
   wait(NULL);
-  wait(NULL);
-
-  // execlp("ls", "ls", NULL);
 
   printf("PARENT <%ld> Goodbye!\n",
          (long) getpid());
   exit(EXIT_SUCCESS);
 }
-
-
-
-
-
-
-
 
 
 
@@ -113,38 +83,3 @@ int main(void) {
   } 
 
 }
-
-/* 
-void child_b(int fd[], char buffer[])
-{
-  printf(" CHILD B <%ld> I'm alive! My PID is <%ld> and my parent got PID <%ld>.\n",
-         (long)getpid(), (long)getpid(), (long)getppid());
-  // Close the pipe write descriptor.
-  close(fd[WRITE]);
-  // Redirect STDIN to read from the pipe.
-  dup2(fd[READ], STDIN_FILENO);
-  int N = 80;
-  int n;
-  n = read(fd[0], buffer, sizeof(buffer));
-
-  // Check for error.
-  if (n == -1)
-  {
-    perror("Reading from file");
-    exit(EXIT_FAILURE);
-  }
-
-  // NULL-terminate.
-  // buffer[n] = '\0';
-  while (buffer[n] != '\0')
-  {
-    execlp("nl", "-", NULL)
-  }
-  //printf("%s", buffer);
-  // Close the dangling pipe read descriptor.
-  close(fd[READ]);
-
-  printf(" CHILD B <%ld> Goodbye!\n",
-         (long)getpid());
-  exit(EXIT_SUCCESS);
-} */
