@@ -39,14 +39,15 @@ void child_b(int fd[], char buffer[]) {
 }
 
 
-void parent(int pidIDs[]) {
+void parent(int pidIDs[], int fd[]) {
   printf("PARENT <%ld> My PID is <%ld> and I spawned a child with PID <%ld>.\n",
          (long) getpid(), (long) getpid(), (long) pidIDs[0]);
   printf("PARENT <%ld> My PID is <%ld> and I spawned a child with PID <%ld>.\n",
          (long) getpid(), (long) getpid(), (long) pidIDs[1]);
-  //wait(NULL);
+  close(fd[READ]);
+  close(fd[WRITE]);
   wait(NULL);
-
+  wait(NULL);
   printf("PARENT <%ld> Goodbye!\n",
          (long) getpid());
   exit(EXIT_SUCCESS);
@@ -78,7 +79,7 @@ int main(void) {
         
       } else {
         pidIDs[2] = par;
-        parent(pidIDs);
+        parent(pidIDs, fd);
       }
   } 
 
